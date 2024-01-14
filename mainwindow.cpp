@@ -6,30 +6,13 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
+    dialogInit();
     //设置窗口标题和大小
     this->setWindowTitle("串口通信Demo");
     this->resize(800,600);
 
-    //初始化串口对象
-    serialPort=new QSerialPort(this);
-    //获取所有可用端口列表
-    QList<QSerialPortInfo> serialPortList=QSerialPortInfo::availablePorts();
-
-    //如果没有可用串口，则在状态栏提示相应信息
-    if(serialPortList.isEmpty()){
-        this->statusBar()->showMessage("没有可用串口，请插入串口或重启电脑重试");
-    }else {
-        //有可用串口的情况下，把串口遍历显示到下拉框中
-        this->statusBar()->showMessage("可用串口数量为:"+QString::number( serialPortList.count()) );
-
-        //创建遍历迭代器，把串口遍历显示到下拉框中
-        QList<QSerialPortInfo>::Iterator nextSerialPort=serialPortList.begin();
-        while (nextSerialPort != serialPortList.end()) {
-            ui->comboBox->addItem(nextSerialPort->portName());
-            nextSerialPort++;
-        }
-    }
+    serialInit();
+    searchCOM();
 
 
     //绑定信号和槽
@@ -93,4 +76,66 @@ void MainWindow::openSerialport()
 
 
     }
+}
+
+void MainWindow::serialInit()
+{
+    //初始化串口对象
+    serialPort=new QSerialPort(this);
+}
+
+void MainWindow::searchCOM()
+{
+    //获取所有可用端口列表
+    QList<QSerialPortInfo> serialPortList=QSerialPortInfo::availablePorts();
+
+
+    //如果没有可用串口，则在状态栏提示相应信息
+    if(serialPortList.isEmpty()){
+        this->statusBar()->showMessage("没有可用串口，请插入串口或重启电脑重试");
+        m_dialog->showDialog();
+    }else {
+        m_dialog->showDialog();
+    }
+}
+
+void MainWindow::dialogInit()
+{
+    QVBoxLayout *layout = new QVBoxLayout;
+    setLayout(layout);
+
+    QWidget *widget = new QWidget;
+    layout->addWidget(widget);
+
+    QWidget *canvas = new QWidget;
+    canvas->setStyleSheet("QWidget { background: white; }");
+    layout->addWidget(canvas);
+
+    // ui->setupUi(this);
+    layout->setContentsMargins(20, 20, 20, 20);
+
+    layout = new QVBoxLayout;
+    canvas->setLayout(layout);
+    canvas->setMaximumHeight(300);
+
+    m_dialog->setParent(this);
+
+    QWidget *dialogWidget = new QWidget;
+    QVBoxLayout *dialogWidgetLayout = new QVBoxLayout;
+    dialogWidget->setLayout(dialogWidgetLayout);
+
+    QtMaterialFlatButton *closeButton = new QtMaterialFlatButton("Close");
+    dialogWidgetLayout->addWidget(closeButton);
+    dialogWidgetLayout->setAlignment(closeButton, Qt::AlignBottom | Qt::AlignCenter);
+
+    closeButton->setMaximumWidth(150);
+
+    QVBoxLayout *dialogLayout = new QVBoxLayout;
+    m_dialog->setWindowLayout(dialogLayout);
+
+    dialogWidget->setMinimumHeight(300);
+
+    dialogLayout->addWidget(dialogWidget);
+
+    connect(closeButton, SIGNAL(pressed()), m_dialog, SLOT(hideDialog()));
 }

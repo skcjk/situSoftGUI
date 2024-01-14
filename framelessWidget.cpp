@@ -1,14 +1,14 @@
 #include "framelessWidget.h"
 #include "ui_framelessWidget.h"
 #include <QPainterPath>
-#include <qtmaterialautocomplete.h>
-
 
 framelessWidget::framelessWidget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::framelessWidget)
 {
     ui->setupUi(this);
+
+    this->resize(800,600); //设置窗口大小
     ui->mainWidget->setMouseTracking(true); // 允许鼠标跟踪
     ui->mainDisplayWidget->setMouseTracking(true);
     setMouseTracking(true);
@@ -32,11 +32,26 @@ framelessWidget::framelessWidget(QWidget *parent)
         this->close();
     });
 
+    serialPort=new QSerialPort(this); //初始化串口对象
+    serialInit();
+
 }
 
 framelessWidget::~framelessWidget()
 {
     delete ui;
+}
+
+void framelessWidget::serialInit()
+{
+    QList<QSerialPortInfo> serialPortList=QSerialPortInfo::availablePorts(); //获取所有可用端口列表
+    //如果没有可用串口，则在状态栏提示相应信息
+    if(serialPortList.isEmpty()){
+        // m_dialog->showDialog();
+    }else {
+        //有可用串口的情况下，把串口遍历显示到下拉框中
+        // m_dialog->showDialog();
+    }
 }
 
 /* 给centralwidget添加一个mainwidget，设置遮罩及遮挡锯齿边缘的board*/

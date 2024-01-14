@@ -2,8 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include<QSerialPort>
-#include<QSerialPortInfo>
+#include <QSerialPort>
+#include <QSerialPortInfo>
+#include <qtmaterialdialog.h>
+#include <qtmaterialflatbutton.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,8 +25,12 @@ private slots:
     void openSerialport();//串口开启/关闭控制
 
 private:
+    void serialInit();
+    void searchCOM();
+    void dialogInit();
     Ui::MainWindow *ui;
     QSerialPort *serialPort;
+    QtMaterialDialog *m_dialog = new QtMaterialDialog;
 
 
 };

@@ -6,6 +6,9 @@
 #include <QMouseEvent>
 #include <QGraphicsDropShadowEffect>
 #include <QDebug>
+#include <QSerialPort>
+#include <QSerialPortInfo>
+#include <qtmaterialtextfield.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class framelessWidget; }
@@ -19,7 +22,11 @@ public:
     framelessWidget(QWidget *parent = nullptr);
     ~framelessWidget();
 
+private slots:
+    void serialInit();
 private:
+    QSerialPort *serialPort;
+
     Ui::framelessWidget *ui;
     int cornerRadius = 20;
     QPoint lastPos;
