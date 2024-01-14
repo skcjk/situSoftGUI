@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     serialInit();
     searchCOM();
 
-
+    startTimer(1000);
     //绑定信号和槽
     connect(serialPort,SIGNAL(readyRead()),this,SLOT(receiveData()));
     connect(ui->send_data,SIGNAL(clicked(bool)),this,SLOT(sendData()));
@@ -218,4 +218,9 @@ void MainWindow::appBarInit()
     layout->addStretch(1);
     m_appBar->appBarLayout()->addWidget(appBarTime);
     ui->centralwidget->setLayout(layout);
+}
+
+void MainWindow::timerEvent(QTimerEvent *event)
+{
+    appBarTime->setText(QTime::currentTime().toString());
 }

@@ -10,6 +10,7 @@
 #include <qtmaterialiconbutton.h>
 #include <qtmaterialappbar.h>
 #include <lib/qtmaterialtheme.h>
+#include <QtWidgets>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -39,9 +40,13 @@ private:
     QSerialPort *serialPort;
     QtMaterialDialog *m_dialog = new QtMaterialDialog;
     QLabel *appBarLabel = new QLabel("Inbox");
-    QLabel *appBarTime = new QLabel("Time");
+    QLabel *appBarTime = new QLabel(QTime::currentTime().toString());
     QLabel *dialogLabel = new QLabel("Your centered text here");
     QtMaterialIconButton *refreshCOMButton = new QtMaterialIconButton(QIcon("refresh.svg"));
 
+
+    // QObject interface
+protected:
+    void timerEvent(QTimerEvent *event);
 };
 #endif // MAINWINDOW_H
