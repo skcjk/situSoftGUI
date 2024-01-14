@@ -125,6 +125,10 @@ void MainWindow::dialogInit()
     dialogWidget->setLayout(dialogWidgetLayout);
 
     QtMaterialFlatButton *closeButton = new QtMaterialFlatButton("Close");
+    closeButton->setRole(Material::Primary);
+    closeButton->setRippleStyle(Material::CenteredRipple);
+    QFont font("Microsoft YaHei", 12, QFont::Bold);
+    closeButton->setFont(font);
     dialogWidgetLayout->addWidget(closeButton);
     dialogWidgetLayout->setAlignment(closeButton, Qt::AlignBottom | Qt::AlignCenter);
 

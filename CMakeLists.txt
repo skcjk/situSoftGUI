@@ -19,9 +19,9 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
-        framelessWidget.cpp
-        framelessWidget.h
-        framelessWidget.ui
+
+
+
 )
 
 include_directories(${CMAKE_SOURCE_DIR}/libs/components)
