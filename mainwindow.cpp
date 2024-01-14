@@ -116,7 +116,7 @@ void MainWindow::dialogInit()
 
     layout = new QVBoxLayout;
     canvas->setLayout(layout);
-    canvas->setMaximumHeight(300);
+    canvas->setMaximumHeight(150);
 
     m_dialog->setParent(this);
 
@@ -124,20 +124,24 @@ void MainWindow::dialogInit()
     QVBoxLayout *dialogWidgetLayout = new QVBoxLayout;
     dialogWidget->setLayout(dialogWidgetLayout);
 
-    QtMaterialFlatButton *closeButton = new QtMaterialFlatButton("Close");
+    QLabel *centerLabel = new QLabel("Your centered text here"); //内容
+    QFont font("Microsoft YaHei", 12, QFont::Bold);
+    centerLabel->setFont(font);
+    centerLabel->setAlignment(Qt::AlignCenter);
+    dialogWidgetLayout->addWidget(centerLabel, 0, Qt::AlignCenter);
+
+    QtMaterialFlatButton *closeButton = new QtMaterialFlatButton("Close"); //关闭按钮
     closeButton->setRole(Material::Primary);
     closeButton->setRippleStyle(Material::CenteredRipple);
-    QFont font("Microsoft YaHei", 12, QFont::Bold);
     closeButton->setFont(font);
     dialogWidgetLayout->addWidget(closeButton);
     dialogWidgetLayout->setAlignment(closeButton, Qt::AlignBottom | Qt::AlignCenter);
-
-    closeButton->setMaximumWidth(150);
+    closeButton->setMaximumWidth(300);
 
     QVBoxLayout *dialogLayout = new QVBoxLayout;
     m_dialog->setWindowLayout(dialogLayout);
 
-    dialogWidget->setMinimumHeight(300);
+    dialogWidget->setMinimumHeight(150);
 
     dialogLayout->addWidget(dialogWidget);
 
