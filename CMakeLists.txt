@@ -14,19 +14,26 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(Qt6 COMPONENTS SerialPort REQUIRED)
 find_package(Qt6 COMPONENTS StateMachine REQUIRED)
 
+qt6_add_resources(QRC_FILES ${QRC_SOURCE_FILES})
+
 set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
-
-
-
 )
 
 include_directories(${CMAKE_SOURCE_DIR}/libs/components)
 link_directories(${CMAKE_SOURCE_DIR}/libs)
 link_libraries(${CMAKE_SOURCE_DIR}/libs/libcomponents.a)
+
+add_custom_target(copy_svg_files ALL
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_SOURCE_DIR}/refresh.svg
+        ${CMAKE_CURRENT_BINARY_DIR}/refresh.svg
+    COMMENT "Copying .svg files"
+    VERBATIM
+)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(situSoftGUI

@@ -1,16 +1,10 @@
 #include "mainwindow.h"
-#include "./ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
-    dialogInit();
-    //设置窗口标题和大小
-    this->setWindowTitle("串口通信Demo");
-    this->resize(800,600);
-
+    uiInit();
     serialInit();
     searchCOM();
 
@@ -19,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(serialPort,SIGNAL(readyRead()),this,SLOT(receiveData()));
     connect(ui->send_data,SIGNAL(clicked(bool)),this,SLOT(sendData()));
     connect(ui->open_serialport,SIGNAL(clicked(bool)),this,SLOT(openSerialport()));
+    connect(ui->searchButton,&QtMaterialFlatButton::clicked,m_dialog,&QtMaterialDialog::showDialog);
 
 }
 
@@ -89,20 +84,32 @@ void MainWindow::searchCOM()
     //获取所有可用端口列表
     QList<QSerialPortInfo> serialPortList=QSerialPortInfo::availablePorts();
 
-
+    static bool flag = true; //第一次运行
     //如果没有可用串口，则在状态栏提示相应信息
     if(serialPortList.isEmpty()){
-        this->statusBar()->showMessage("没有可用串口，请插入串口或重启电脑重试");
+        dialogLabel->setText("没有可用串口，请插入串口或重启电脑重试");
+        appBarLabel->setText("没有可用串口");
         m_dialog->showDialog();
     }else {
+        if (flag)
+            dialogLabel->setText("可用串口数量为:"+QString::number( serialPortList.count()) );
+        appBarLabel->setText("可用串口数量为:"+QString::number( serialPortList.count()) );
         m_dialog->showDialog();
+        //创建遍历迭代器，把串口遍历显示到下拉框中
+        QList<QSerialPortInfo>::Iterator nextSerialPort=serialPortList.begin();
+        ui->comboBox->clear();
+        while (nextSerialPort != serialPortList.end()) {
+            ui->comboBox->addItem(nextSerialPort->portName());
+            nextSerialPort++;
+
+        }
     }
 }
 
 void MainWindow::dialogInit()
 {
     QVBoxLayout *layout = new QVBoxLayout;
-    setLayout(layout);
+    // setLayout(layout);
 
     QWidget *widget = new QWidget;
     layout->addWidget(widget);
@@ -120,23 +127,24 @@ void MainWindow::dialogInit()
 
     m_dialog->setParent(this);
 
-    QWidget *dialogWidget = new QWidget;
+    QWidget *dialogWidget = new QWidget; //显示内容
     QVBoxLayout *dialogWidgetLayout = new QVBoxLayout;
     dialogWidget->setLayout(dialogWidgetLayout);
 
-    QLabel *centerLabel = new QLabel("Your centered text here"); //内容
-    QFont font("Microsoft YaHei", 12, QFont::Bold);
-    centerLabel->setFont(font);
-    centerLabel->setAlignment(Qt::AlignCenter);
-    dialogWidgetLayout->addWidget(centerLabel, 0, Qt::AlignCenter);
+    QFont textFont("Microsoft YaHei", 12, QFont::Bold);
+    dialogLabel->setFont(textFont);
+    dialogLabel->setAlignment(Qt::AlignCenter);
+    dialogWidgetLayout->addWidget(dialogLabel, 0, Qt::AlignCenter);
 
     QtMaterialFlatButton *closeButton = new QtMaterialFlatButton("Close"); //关闭按钮
-    closeButton->setRole(Material::Primary);
-    closeButton->setRippleStyle(Material::CenteredRipple);
-    closeButton->setFont(font);
+    qtMaterialFlatButtonInit(closeButton);
     dialogWidgetLayout->addWidget(closeButton);
     dialogWidgetLayout->setAlignment(closeButton, Qt::AlignBottom | Qt::AlignCenter);
     closeButton->setMaximumWidth(300);
+    // QPalette pal = widget->palette();
+    // pal.setColor(QPalette::Button, QColor(240, 240, 240));
+    // closeButton->setAutoFillBackground(true);  // 允许部件自动填充背景
+    // closeButton->setPalette(pal);
 
     QVBoxLayout *dialogLayout = new QVBoxLayout;
     m_dialog->setWindowLayout(dialogLayout);
@@ -146,4 +154,68 @@ void MainWindow::dialogInit()
     dialogLayout->addWidget(dialogWidget);
 
     connect(closeButton, SIGNAL(pressed()), m_dialog, SLOT(hideDialog()));
+    connect(refreshCOMButton,&QtMaterialIconButton::clicked, this,&MainWindow::searchCOM);
+}
+
+void MainWindow::uiInit()
+{
+    dialogInit();
+    ui->setupUi(this);
+    qtMaterialFlatButtonInit(ui->searchButton);
+    appBarInit();
+    //设置窗口标题和大小
+    this->setWindowTitle("串口通信Demo");
+    this->resize(800,600);
+}
+
+void MainWindow::qtMaterialFlatButtonInit(QtMaterialFlatButton *thisButton)
+{
+    QFont font("Microsoft YaHei", 12, QFont::Bold);
+    thisButton->setRole(Material::Primary);
+    thisButton->setRippleStyle(Material::CenteredRipple);
+    thisButton->setFont(font);
+}
+
+void MainWindow::appBarInit()
+{
+    QtMaterialAppBar *m_appBar = new QtMaterialAppBar;
+    appBarLabel->setAttribute(Qt::WA_TranslucentBackground);
+    appBarLabel->setForegroundRole(QPalette::WindowText);
+    appBarLabel->setContentsMargins(6, 0, 0, 0);
+    appBarTime->setAttribute(Qt::WA_TranslucentBackground);
+    appBarTime->setForegroundRole(QPalette::WindowText);
+    appBarTime->setAlignment(Qt::AlignCenter);
+
+    QPalette palette = appBarLabel->palette();
+    palette.setColor(appBarLabel->foregroundRole(), Qt::white);
+    appBarLabel->setPalette(palette);
+    appBarTime->setPalette(palette);
+
+    appBarLabel->setFont(QFont("Microsoft YaHei", 16, QFont::Normal));
+    appBarTime->setFont(QFont("Microsoft YaHei", 16, QFont::Normal));
+    refreshCOMButton->setIconSize(QSize(24, 24));
+    m_appBar->appBarLayout()->addWidget(refreshCOMButton);
+    m_appBar->appBarLayout()->addWidget(appBarLabel);
+    m_appBar->appBarLayout()->addStretch(1);
+    refreshCOMButton->setColor(Qt::white);
+    refreshCOMButton->setFixedWidth(42);
+
+    QVBoxLayout *layout = new QVBoxLayout;
+
+    QWidget *widget = new QWidget;
+    layout->addWidget(widget);
+
+    QWidget *canvas = new QWidget;
+    canvas->setStyleSheet("QWidget { background: white; }");
+    layout->addWidget(canvas);
+
+    layout->setContentsMargins(0, 0, 0, 0);
+
+    layout = new QVBoxLayout;
+    canvas->setLayout(layout);
+    canvas->setMaximumHeight(300);
+    layout->addWidget(m_appBar);
+    layout->addStretch(1);
+    m_appBar->appBarLayout()->addWidget(appBarTime);
+    ui->centralwidget->setLayout(layout);
 }

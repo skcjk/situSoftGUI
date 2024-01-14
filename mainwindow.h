@@ -6,6 +6,10 @@
 #include <QSerialPortInfo>
 #include <qtmaterialdialog.h>
 #include <qtmaterialflatbutton.h>
+#include "./ui_mainwindow.h"
+#include <qtmaterialiconbutton.h>
+#include <qtmaterialappbar.h>
+#include <lib/qtmaterialtheme.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -28,10 +32,16 @@ private:
     void serialInit();
     void searchCOM();
     void dialogInit();
+    void uiInit();
+    void qtMaterialFlatButtonInit(QtMaterialFlatButton *thisButton);
+    void appBarInit();
     Ui::MainWindow *ui;
     QSerialPort *serialPort;
     QtMaterialDialog *m_dialog = new QtMaterialDialog;
-
+    QLabel *appBarLabel = new QLabel("Inbox");
+    QLabel *appBarTime = new QLabel("Time");
+    QLabel *dialogLabel = new QLabel("Your centered text here");
+    QtMaterialIconButton *refreshCOMButton = new QtMaterialIconButton(QIcon("refresh.svg"));
 
 };
 #endif // MAINWINDOW_H
