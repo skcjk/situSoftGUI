@@ -13,7 +13,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(serialPort,SIGNAL(readyRead()),this,SLOT(receiveData()));
     connect(ui->send_data,SIGNAL(clicked(bool)),this,SLOT(sendData()));
     connect(ui->open_serialport,SIGNAL(clicked(bool)),this,SLOT(openSerialport()));
-    connect(ui->searchButton,&QtMaterialFlatButton::clicked,m_dialog,&QtMaterialDialog::showDialog);
 
 }
 
@@ -50,15 +49,19 @@ void MainWindow::receiveData()
 
 void MainWindow::openSerialport()
 {
+    static bool flag = true;
     //判断串口是否已经打开,若打开则关闭，同时改变状态灯和按钮文字设置为“打开串口”
     if(serialPort->isOpen()){
         serialPort->clear();
         serialPort->close();
         ui->open_serialport->setText("打开串口");
-        ui->label->setStyleSheet("background-color: rgb(255, 0, 0);");
+        appBarLabel->setText("串口已关闭");
+        if(!flag) connect(refreshCOMButton,&QtMaterialIconButton::clicked, this,&MainWindow::searchCOM);
+        flag = true;
     }else {
         //若串口没有打开，则设置指示灯为绿色，设置按钮文字为“关闭串口”
-        ui->label->setStyleSheet("background-color:rgb(0,255,0);border-radius:12px;");
+        appBarLabel->setText("串口已打开");
+        disconnect(refreshCOMButton,&QtMaterialIconButton::clicked, this,&MainWindow::searchCOM);
         ui->open_serialport->setText("关闭串口");
         serialPort->setPortName(ui->comboBox->currentText());
         serialPort->open(QIODevice::ReadWrite);
@@ -67,9 +70,7 @@ void MainWindow::openSerialport()
         serialPort->setParity(QSerialPort::NoParity);
         serialPort->setStopBits(QSerialPort::OneStop);
         serialPort->setFlowControl(QSerialPort::NoFlowControl);
-
-
-
+        flag = false;
     }
 }
 
@@ -91,17 +92,21 @@ void MainWindow::searchCOM()
         appBarLabel->setText("没有可用串口");
         m_dialog->showDialog();
     }else {
-        if (flag)
+        if (flag){
+            flag=false;
+            appBarLabel->setText("搜索串口");
+        }
+        else{
             dialogLabel->setText("可用串口数量为:"+QString::number( serialPortList.count()) );
-        appBarLabel->setText("可用串口数量为:"+QString::number( serialPortList.count()) );
-        m_dialog->showDialog();
+            m_dialog->showDialog();
+            appBarLabel->setText("可用串口数量为:"+QString::number( serialPortList.count()) );
+        }
         //创建遍历迭代器，把串口遍历显示到下拉框中
         QList<QSerialPortInfo>::Iterator nextSerialPort=serialPortList.begin();
         ui->comboBox->clear();
         while (nextSerialPort != serialPortList.end()) {
             ui->comboBox->addItem(nextSerialPort->portName());
             nextSerialPort++;
-
         }
     }
 }
@@ -161,11 +166,12 @@ void MainWindow::uiInit()
 {
     dialogInit();
     ui->setupUi(this);
-    qtMaterialFlatButtonInit(ui->searchButton);
+    qtMaterialFlatButtonInit(ui->open_serialport);
+    qtMaterialFlatButtonInit(ui->send_data);
     appBarInit();
     //设置窗口标题和大小
     this->setWindowTitle("串口通信Demo");
-    this->resize(800,600);
+    // this->resize(480,460);
 }
 
 void MainWindow::qtMaterialFlatButtonInit(QtMaterialFlatButton *thisButton)
